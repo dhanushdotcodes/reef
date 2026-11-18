@@ -2,7 +2,6 @@ import { createDisposables } from '../core/disposables.ts'
 import { startLoop } from '../core/loop.ts'
 import { createScene, createViewport } from '../core/viewport.ts'
 import { createEnvironment } from '../entities/environment.ts'
-import { createRays } from '../entities/rays.ts'
 import { createSpawners } from '../entities/spawners.ts'
 import { runSystems } from '../systems/index.ts'
 import { createState } from './state.ts'
@@ -24,8 +23,7 @@ export function createGame(canvas: HTMLCanvasElement): Game {
     spawn: createSpawners(scene, disposables),
   }
 
-  state.rays = createRays(scene, disposables, viewport)
-  const environment = createEnvironment(scene, disposables, viewport)
+  const environment = createEnvironment(scene, viewport)
 
   const stopLoop = startLoop((dt, time) => {
     runSystems(world, dt, time)

@@ -9,7 +9,6 @@ export const COLORS = {
     deep: '#115B80',
     abyss: '#061F32',
   },
-  rock: '#1b4a66',
   coral: ['#ff6b6b', '#ff8c5a', '#f25ca2', '#f4a259', '#ef6c8a'],
 } as const
 

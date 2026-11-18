@@ -5,7 +5,6 @@ export function createState(): GameState {
     swimmers: [],
     food: [],
     coral: [],
-    rays: [],
     foodCooldown: 0,
   }
 }
