@@ -13,6 +13,7 @@ import { PlacementController } from './scene/PlacementController'
 import { Toolbar } from './ui/Toolbar'
 import { TopBar } from './ui/TopBar'
 import { FxLayer } from './fx/FxLayer'
+import { FishSchool } from './elements/fish/FishSchool'
 import { Effects } from './scene/Effects'
 
 export function App() {
@@ -38,6 +39,7 @@ export function App() {
         <Seabed />
         <Particles />
         <ElementsLayer />
+        <FishSchool />
         <PlacementController />
         <FxLayer />
         <CameraRig />
