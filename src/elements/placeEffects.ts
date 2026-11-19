@@ -27,6 +27,11 @@ export function triggerPlacement(el: PlacedElement) {
       else if (fx === 'shake' && !prefersReducedMotion) shake(el.kind === 'wall' ? 0.09 : 0.05, 150)
     }
   }
+  if (el.kind === 'coral' && !el.silent) {
+    // sparkles ride the growth front
+    for (const [ms, h] of [[250, 0.4], [550, 0.9]] as const)
+      setTimeout(() => fxBus.emit('sparkle', { position: [el.position[0], el.position[1] + h * el.scale, el.position[2]], strength: 0.6, color: el.color }), ms)
+  }
   const ms = def.landTime * 1000
   if (ms > 0) setTimeout(at, ms)
   else at()
