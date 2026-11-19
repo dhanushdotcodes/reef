@@ -34,6 +34,7 @@ export function App() {
         <PerformanceMonitor
           flipflops={3}
           onDecline={() => setTier(Math.max(0, tier - 1) as 0 | 1 | 2)}
+          onFallback={() => setTier(0)}
         />
         <TimeDriver />
         <WaterAtmosphere />
