@@ -20,6 +20,7 @@ export type SoundName =
   | 'whoomp'
   | 'tick'
   | 'heavyThud'
+  | 'bubble'
 
 export type FxName = 'sandPuff' | 'dustRing' | 'bubbleBurst' | 'sparkle' | 'shake'
 

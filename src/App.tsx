@@ -12,6 +12,7 @@ import { ElementsLayer } from './elements/ElementsLayer'
 import { PlacementController } from './scene/PlacementController'
 import { Toolbar } from './ui/Toolbar'
 import { TopBar } from './ui/TopBar'
+import { FxLayer } from './fx/FxLayer'
 import { Effects } from './scene/Effects'
 
 export function App() {
@@ -38,6 +39,7 @@ export function App() {
         <Particles />
         <ElementsLayer />
         <PlacementController />
+        <FxLayer />
         <CameraRig />
         <Effects />
       </Canvas>
