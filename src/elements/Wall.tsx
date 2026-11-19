@@ -128,7 +128,7 @@ export function Wall({ el, ghost }: { el: PlacedElement; ghost?: boolean }) {
   })
 
   return (
-    <group position={el.position} rotation-y={el.rotationY} scale={el.scale}>
+    <group position={el.position} rotation-y={el.rotationY} scale={el.scale} userData={{ id: el.id }}>
       <instancedMesh
         ref={mesh}
         args={[blockGeometry(), material, blocks.length]}

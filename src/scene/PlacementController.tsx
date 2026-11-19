@@ -7,7 +7,7 @@ import { ElementView } from '../elements/ElementView'
 import { COLORS, TERRAIN } from '../config'
 import { intersectTerrain, sandHeight } from '../utils/terrain'
 import { placement } from './placementState'
-import { triggerPlacement } from '../elements/placeEffects'
+import { triggerPlacement, triggerMove } from '../elements/placeEffects'
 import type { PlacedElement, Vec3 } from '../types'
 
 const ghostMaterial = new THREE.MeshBasicMaterial({
@@ -171,10 +171,23 @@ export function PlacementController() {
         }
         st.endDrag()
       }
+      if (st.moving) {
+        const id = st.moving
+        const el = st.elements.find((o) => o.id === id)
+        if (el && placement.hasPoint && !placement.overUI && placement.valid) {
+          const def = REGISTRY[el.kind]
+          const [x, y, z] = placement.point
+          st.moveElement(id, def.grounded ? [x, y, z] : [x, y + FISH_HEIGHT, z])
+          const moved = useReefStore.getState().elements.find((o) => o.id === id)
+          if (moved) triggerMove(moved)
+        }
+        st.startMove(null)
+      }
       placement.hasPoint = false
     }
     const cancel = () => {
       useReefStore.getState().endDrag()
+      useReefStore.getState().startMove(null)
       placement.hasPoint = false
     }
     window.addEventListener('pointermove', track)
