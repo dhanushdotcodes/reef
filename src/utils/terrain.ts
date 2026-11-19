@@ -16,3 +16,35 @@ export function sandHeight(x: number, z: number): number {
   const flatten = 0.45 + 0.55 * Math.min(1, r / TERRAIN.flatRadius)
   return (big + mid) * flatten + small + ripple + bowl - 0.2
 }
+
+/** Ray vs heightfield: march then bisect. Much cheaper than raycasting 80k triangles. */
+export function intersectTerrain(
+  ox: number, oy: number, oz: number,
+  dx: number, dy: number, dz: number,
+  out: [number, number, number],
+): boolean {
+  const maxT = 90
+  const step = 0.6
+  let prevT = 0
+  let t = 0
+  let found = false
+  while (t < maxT) {
+    const x = ox + dx * t, y = oy + dy * t, z = oz + dz * t
+    if (y < sandHeight(x, z)) { found = true; break }
+    prevT = t
+    t += step
+  }
+  if (!found) return false
+  let lo = prevT, hi = t
+  for (let i = 0; i < 10; i++) {
+    const m = (lo + hi) / 2
+    const x = ox + dx * m, y = oy + dy * m, z = oz + dz * m
+    if (y < sandHeight(x, z)) hi = m
+    else lo = m
+  }
+  const x = ox + dx * hi, z = oz + dz * hi
+  out[0] = x
+  out[1] = sandHeight(x, z)
+  out[2] = z
+  return true
+}

@@ -8,6 +8,10 @@ import { Lighting } from './scene/Lighting'
 import { CameraRig } from './scene/CameraRig'
 import { TimeDriver } from './scene/TimeDriver'
 import { Particles } from './scene/Particles'
+import { ElementsLayer } from './elements/ElementsLayer'
+import { PlacementController } from './scene/PlacementController'
+import { Toolbar } from './ui/Toolbar'
+import { TopBar } from './ui/TopBar'
 import { Effects } from './scene/Effects'
 
 export function App() {
@@ -32,9 +36,13 @@ export function App() {
         <Lighting />
         <Seabed />
         <Particles />
+        <ElementsLayer />
+        <PlacementController />
         <CameraRig />
         <Effects />
       </Canvas>
+      <TopBar />
+      <Toolbar />
     </>
   )
 }
