@@ -43,11 +43,12 @@ export function seedStarterReef() {
   for (let i = 0; i < 4; i++) place('rock', [-8, 8, -4, 3])
   for (let i = 0; i < 3; i++) place('coral', [-5, 5, -2, 3])
   for (let i = 0; i < 2; i++) place('kelp', [-8, 8, -5, 0])
-  for (let i = 0; i < 15; i++) {
+  // lionfish are solitary hoverers: a handful reads better than a school
+  for (let i = 0; i < 6; i++) {
     const x = (r() - 0.5) * 8, z = (r() - 0.5) * 6
     els.push({
       id: nanoid(8), kind: 'fish', position: [x, 2 + r() * 2.5, z], rotationY: 0, scale: 0.9 + r() * 0.3,
-      variant: i < 9 ? 0 : i < 13 ? 1 : 2, seed: Math.floor(r() * 2 ** 31), createdAt: t0 + 1200 + i * 90, silent: true,
+      variant: 0, seed: Math.floor(r() * 2 ** 31), createdAt: t0 + 1200 + i * 220, silent: true,
     })
   }
   useReefStore.getState().setElements(els)

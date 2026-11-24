@@ -1,4 +1,5 @@
 import type { ElementDef, ElementKind } from '../types'
+import { FISH_SPECIES_IDS } from './fish/speciesIds'
 
 export const REGISTRY: Record<ElementKind, ElementDef> = {
   rock: {
@@ -19,7 +20,8 @@ export const REGISTRY: Record<ElementKind, ElementDef> = {
   },
   fish: {
     kind: 'fish', label: 'Fish', icon: '🐠', grounded: false, footprint: 0.3, maxCount: 200,
-    variants: 3, onPlaceSound: 'blup', onPlaceFx: ['bubbleBurst'], landTime: 0,
+    // one variant per species (see fish/speciesIds.ts)
+    variants: FISH_SPECIES_IDS.length, onPlaceSound: 'blup', onPlaceFx: ['bubbleBurst'], landTime: 0,
   },
   shell: {
     kind: 'shell', label: 'Shell', icon: '🐚', grounded: true, footprint: 0.4, maxCount: 40,

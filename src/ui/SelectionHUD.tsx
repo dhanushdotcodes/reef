@@ -1,6 +1,6 @@
 import { Html } from '@react-three/drei'
 import { useReefStore } from '../store/useReefStore'
-import { OBSTACLE_HEIGHT } from '../elements/fish/boids'
+import { OBSTACLE_HEIGHT } from '../elements/fish/shared/obstacles'
 import { requestDelete } from '../scene/EditController'
 import { playSound } from '../audio/audioEngine'
 import s from './styles.module.css'

@@ -7,7 +7,7 @@ import { Wall } from './Wall'
 import { Shell } from './Shell'
 import { Chest } from './Chest'
 import { BubbleVent } from './BubbleVent'
-import { FishGhost } from './fish/FishSchool'
+import { speciesOf } from './fish/species'
 
 export const ENABLED_KINDS = new Set(['rock', 'coral', 'kelp', 'wall', 'shell', 'chest', 'bubbles', 'fish'])
 
@@ -21,7 +21,12 @@ export const ElementView = memo(function ElementView({ el, ghost }: { el: Placed
     case 'shell': return <Shell el={el} ghost={ghost} />
     case 'chest': return <Chest el={el} ghost={ghost} />
     case 'bubbles': return <BubbleVent el={el} ghost={ghost} />
-    case 'fish': return ghost ? <FishGhost el={el} /> : null
+    case 'fish': {
+      // fish are drawn by FishLayer (instanced); only the drag ghost renders here
+      if (!ghost) return null
+      const { Ghost } = speciesOf(el.variant)
+      return <Ghost el={el} />
+    }
     default: return null
   }
 })
