@@ -17,15 +17,15 @@ export function emitBubbles(pool: ParticlePool, pos: Vec3, count = 8, spread = 0
 
 const SPARKS = [[1, 0.85, 0.4], [0.7, 1, 1], [1, 0.75, 0.9]]
 export function emitSparkles(pool: ParticlePool, pos: Vec3, strength = 1, color?: [number, number, number]) {
-  const n = Math.round(12 * strength)
+  const n = Math.round(8 * strength)
   for (let i = 0; i < n; i++) {
     const c = color ?? SPARKS[i % 3]
     const a = Math.random() * Math.PI * 2
     pool.emit({
       x: pos[0] + Math.cos(a) * 0.35, y: pos[1] + Math.random() * 0.8, z: pos[2] + Math.sin(a) * 0.35,
       vx: Math.cos(a) * 0.3, vy: 0.4 + Math.random() * 0.9, vz: Math.sin(a) * 0.3,
-      r: c[0], g: c[1], b: c[2], a: 1,
-      size: 0.14 + Math.random() * 0.14,
+      r: c[0], g: c[1], b: c[2], a: 0.55,
+      size: 0.1 + Math.random() * 0.1,
       life: 0.8 + Math.random() * 0.9,
       drag: 0.97, gravity: 0.1, grow: -0.3, kind: 2,
     })

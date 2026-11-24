@@ -19,10 +19,10 @@ void main() {
   float a;
   if (vKind > 0.5 && vKind < 1.5) {          // bubble: rim + highlight
     a = smoothstep(0.7, 0.95, d) * 0.8 + 0.12;
-    a += smoothstep(0.28, 0.0, length(c - vec2(-0.14, -0.14))) * 0.7;
+    a = min(1.0, a + smoothstep(0.28, 0.0, length(c - vec2(-0.14, -0.14))) * 0.7);
   } else if (vKind > 1.5) {                  // sparkle: 4-point star
     float s = max(0.0, 1.0 - abs(c.x) * 9.0) * (1.0 - d) + max(0.0, 1.0 - abs(c.y) * 9.0) * (1.0 - d);
-    a = clamp(s + smoothstep(0.35, 0.0, d), 0.0, 1.0);
+    a = clamp(s * 0.8 + smoothstep(0.3, 0.0, d) * 0.5, 0.0, 1.0);
   } else {                                   // soft puff
     a = smoothstep(1.0, 0.0, d); a *= a;
   }
@@ -141,7 +141,7 @@ export class ParticlePool {
       alive++
       const a = age + dt
       this.age[i] = a
-      const u = a / this.life[i]
+      const u = Math.min(1, a / this.life[i])
       const k = Math.pow(this.drag[i], f60)
       const i3 = i * 3
       this.vel[i3] *= k; this.vel[i3 + 1] *= k; this.vel[i3 + 2] *= k
@@ -155,8 +155,9 @@ export class ParticlePool {
       this.pos[i3 + 2] += this.vel[i3 + 2] * dt
       if (this.pos[i3 + 1] < this.floor[i]) { this.pos[i3 + 1] = this.floor[i]; this.vel[i3 + 1] = 0 }
       const fade = this.kind[i] === KIND_SPARK ? (1 - u) * (0.6 + 0.4 * Math.sin(a * 24 + i)) : Math.pow(1 - u, 1.5)
-      this.col[i * 4 + 3] = this.baseA[i] * fade * Math.min(1, a * 14)
-      this.size[i] = this.baseSize[i] * (1 + this.grow[i] * u)
+      const alpha = this.baseA[i] * Math.max(0, fade) * Math.min(1, a * 14)
+      this.col[i * 4 + 3] = u >= 1 ? 0 : alpha
+      this.size[i] = u >= 1 ? 0 : Math.max(0, this.baseSize[i] * (1 + this.grow[i] * u))
     }
     this.alive = alive
     this.dirty = alive > 0
