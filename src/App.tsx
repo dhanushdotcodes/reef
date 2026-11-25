@@ -17,6 +17,7 @@ import { FishLayer } from './elements/fish/FishLayer'
 import { EditController } from './scene/EditController'
 import { SelectionHUD } from './ui/SelectionHUD'
 import { Effects } from './scene/Effects'
+import { Cliffs } from './scene/Cliffs'
 import { ScreenshotController } from './scene/ScreenshotController'
 
 export function App() {
@@ -41,6 +42,7 @@ export function App() {
         <WaterAtmosphere />
         <Lighting />
         <Seabed />
+        <Cliffs />
         <Particles />
         <ElementsLayer />
         <FishLayer />
