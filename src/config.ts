@@ -24,13 +24,21 @@ export const TERRAIN = {
 } as const
 
 export const CAMERA = {
-  fov: 45,
-  start: [0, 6, 14] as const,
-  minPolar: 0.35,
-  maxPolar: 1.35,
-  minDistance: 6,
-  maxDistance: 24,
-  idleSeconds: 5,
+  fov: 55,
+  /** fixed position: low, near the sand */
+  start: [0, 2.2, 13] as const,
+  /** home look-at point (~7° up toward the surface) */
+  target: [0, 3.8, 0] as const,
+  /**
+   * Look range in degrees from straight ahead (90° view = 0 here):
+   * ±45° covers the 45°–135° view both horizontally and vertically.
+   */
+  maxYaw: 45,
+  minPitch: -45,
+  maxPitch: 45,
+  /** dolly range as a multiple of the home distance to the board (0.5 = halfway in, 1.5 = 50% further out) */
+  zoomIn: 0.5,
+  zoomOut: 1.5,
 } as const
 
 /** Snell's window: the bright disc of sky seen from below the surface. */
