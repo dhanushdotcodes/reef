@@ -33,9 +33,16 @@ export const CAMERA = {
   idleSeconds: 5,
 } as const
 
+/** Snell's window: the bright disc of sky seen from below the surface. */
+export const SURFACE = {
+  /** elevation (sin) where the window starts / is fully bright — widened for the low camera */
+  windowEdge: 0.3,
+  windowFull: 0.5,
+  height: 14,
+}
+
 export const WATER = {
   fogDensity: 0.045,
-  rays: 7,
 }
 
 export const CAUSTICS = { intensity: 0.35, scale: 0.16 }

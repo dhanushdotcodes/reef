@@ -1,9 +1,8 @@
 import { useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { useFrame, useThree } from '@react-three/fiber'
-import { COLORS, WATER } from '../config'
-import { mulberry32 } from '../utils/random'
-import { useQuality } from '../utils/quality'
+import { COLORS, SURFACE, WATER } from '../config'
+import { sharedTime } from '../shaders/caustics.glsl'
 
 const bgVert = /* glsl */ `
 varying vec3 vDir;
@@ -15,12 +14,38 @@ void main() {
 const bgFrag = /* glsl */ `
 varying vec3 vDir;
 uniform vec3 cBottom; uniform vec3 cMid; uniform vec3 cTop;
+uniform float uTime; uniform float uEdge; uniform float uFull; uniform float uHeight;
+
+// cheap rippling surface brightness: warped sine interference
+float ripples(vec2 p, float t) {
+  vec2 q = p * 0.35;
+  q += 0.6 * vec2(sin(q.y * 1.7 + t * 0.4), cos(q.x * 1.3 - t * 0.35));
+  float a = sin(q.x * 2.1 + t * 0.6) * sin(q.y * 2.4 - t * 0.5);
+  float b = sin((q.x + q.y) * 3.3 - t * 0.8) * sin((q.x - q.y) * 2.7 + t * 0.7);
+  float v = 0.5 + 0.5 * (a * 0.6 + b * 0.4);
+  return pow(v, 5.0);
+}
+
 void main() {
-  float y = normalize(vDir).y;
+  vec3 d = normalize(vDir);
+  float y = d.y;
   vec3 col = y < 0.0 ? mix(cMid, cBottom, smoothstep(0.0, -0.55, y))
-                     : mix(cMid, cTop, smoothstep(0.0, 0.7, y));
-  // faint sun glow high above
-  col += vec3(0.25, 0.5, 0.55) * pow(max(0.0, y), 6.0) * 0.5;
+                     : mix(cMid, cTop, smoothstep(0.0, 0.5, y));
+
+  if (y > 0.02) {
+    // where this view ray meets the surface
+    vec2 sp = d.xz / y * uHeight;
+    float window = smoothstep(uEdge, uFull, y);
+    // outside the window the surface mirrors the dark depths (total internal reflection)
+    col = mix(col, cBottom * 1.4, smoothstep(uEdge + 0.04, uEdge - 0.08, y) * smoothstep(0.05, 0.25, y) * 0.5);
+    // inside: bright sky with shimmering ripples and the sun's glow
+    vec3 sky = mix(vec3(0.18, 0.55, 0.62), vec3(0.6, 0.9, 0.85), smoothstep(uFull, 1.0, y));
+    float r = ripples(sp, uTime) + 0.6 * ripples(sp * 1.9 + 7.0, uTime * 1.3);
+    vec3 lit = sky * (0.55 + 0.25 * smoothstep(uFull, 1.0, y)) + vec3(1.0, 0.93, 0.62) * r * 0.45;
+    col = mix(col, lit, window);
+    // bright rim at the window's edge
+    col += vec3(0.3, 0.55, 0.55) * exp(-pow((y - uEdge) * 18.0, 2.0)) * 0.35;
+  }
   gl_FragColor = vec4(col, 1.0);
   #include <colorspace_fragment>
 }`
@@ -37,6 +62,10 @@ function Backdrop() {
           cBottom: { value: new THREE.Color(COLORS.bgBottom) },
           cMid: { value: new THREE.Color(COLORS.bgMid) },
           cTop: { value: new THREE.Color(COLORS.bgTop) },
+          uTime: sharedTime,
+          uEdge: { value: SURFACE.windowEdge },
+          uFull: { value: SURFACE.windowFull },
+          uHeight: { value: SURFACE.height },
         },
         side: THREE.BackSide,
         depthWrite: false,
@@ -48,85 +77,8 @@ function Backdrop() {
   useFrame(() => ref.current?.position.copy(camera.position))
   return (
     <mesh ref={ref} material={material} renderOrder={-1000} frustumCulled={false}>
-      <sphereGeometry args={[150, 24, 16]} />
+      <sphereGeometry args={[150, 48, 32]} />
     </mesh>
-  )
-}
-
-const rayVert = /* glsl */ `
-varying vec2 vUv; varying vec3 vN; varying vec3 vV;
-void main() {
-  vUv = uv;
-  vN = normalize(normalMatrix * normal);
-  vec4 mv = modelViewMatrix * vec4(position, 1.0);
-  vV = -mv.xyz;
-  gl_Position = projectionMatrix * mv;
-}`
-const rayFrag = /* glsl */ `
-varying vec2 vUv; varying vec3 vN; varying vec3 vV;
-uniform float uTime; uniform float uPhase; uniform vec3 uColor; uniform float uStrength;
-void main() {
-  float edge = pow(abs(dot(normalize(vN), normalize(vV))), 1.6);
-  float vert = pow(clamp(vUv.y, 0.0, 1.0), 1.3) * smoothstep(0.0, 0.12, 1.0 - vUv.y);
-  float flick = 0.75 + 0.25 * sin(uTime * 0.7 + uPhase) * sin(uTime * 0.31 + uPhase * 2.3);
-  float a = edge * vert * flick * uStrength;
-  gl_FragColor = vec4(uColor, a);
-}`
-
-function GodRays() {
-  const tier = useQuality((s) => s.tier)
-  const count = tier === 0 ? 4 : WATER.rays
-  const rays = useMemo(() => {
-    const r = mulberry32(77)
-    return Array.from({ length: count }, (_, i) => ({
-      x: (r() - 0.5) * 30,
-      z: -14 + r() * 20,
-      tilt: 0.18 + r() * 0.1,
-      yaw: r() * Math.PI * 2,
-      radius: 0.8 + r() * 1.0,
-      phase: r() * 10 + i,
-      strength: 0.16 + r() * 0.14,
-    }))
-  }, [count])
-  const group = useRef<THREE.Group>(null)
-  const mats = useMemo(
-    () =>
-      rays.map(
-        (ray) =>
-          new THREE.ShaderMaterial({
-            vertexShader: rayVert,
-            fragmentShader: rayFrag,
-            uniforms: {
-              uTime: { value: 0 },
-              uPhase: { value: ray.phase },
-              uColor: { value: new THREE.Color('#bff6ff') },
-              uStrength: { value: ray.strength },
-            },
-            transparent: true,
-            depthWrite: false,
-            blending: THREE.AdditiveBlending,
-            side: THREE.DoubleSide,
-            fog: false,
-          }),
-      ),
-    [rays],
-  )
-  useFrame((s) => {
-    const t = s.clock.elapsedTime
-    mats.forEach((m) => (m.uniforms.uTime.value = t))
-    group.current?.children.forEach((c, i) => {
-      c.rotation.z = rays[i].tilt + Math.sin(t * 0.25 + rays[i].phase) * 0.04
-      c.rotation.x = Math.cos(t * 0.2 + rays[i].phase) * 0.03
-    })
-  })
-  return (
-    <group ref={group}>
-      {rays.map((ray, i) => (
-        <mesh key={i} position={[ray.x, 9, ray.z]} rotation={[0, ray.yaw, ray.tilt]} material={mats[i]} frustumCulled={false} renderOrder={-10}>
-          <cylinderGeometry args={[0.18, ray.radius, 24, 14, 1, true]} />
-        </mesh>
-      ))}
-    </group>
   )
 }
 
@@ -135,7 +87,6 @@ export function WaterAtmosphere() {
     <>
       <fogExp2 attach="fog" args={[COLORS.fog, WATER.fogDensity]} />
       <Backdrop />
-      <GodRays />
     </>
   )
 }
