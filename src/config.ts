@@ -29,13 +29,10 @@ export const CAMERA = {
   start: [0, 2.2, 13] as const,
   /** home look-at point (~7° up toward the surface) */
   target: [0, 3.8, 0] as const,
-  /**
-   * Look range in degrees from straight ahead (90° view = 0 here):
-   * ±45° covers the 45°–135° view both horizontally and vertically.
-   */
+  /** look range in degrees from straight ahead: ±45° left/right, 25° down to 15° up */
   maxYaw: 45,
-  minPitch: -45,
-  maxPitch: 45,
+  minPitch: -25,
+  maxPitch: 15,
   /** dolly range as a multiple of the home distance to the board (0.5 = halfway in, 1.5 = 50% further out) */
   zoomIn: 0.5,
   zoomOut: 1.5,
