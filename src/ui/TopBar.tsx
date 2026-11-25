@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useReefStore } from '../store/useReefStore'
 import { playSound } from '../audio/audioEngine'
+import { downloadScreenshot } from '../scene/ScreenshotController'
 import s from './styles.module.css'
 
 export function TopBar() {
@@ -36,6 +37,17 @@ export function TopBar() {
             Clear reef
           </button>
         )}
+        <button
+          className={s.pill}
+          aria-label="Take screenshot"
+          title="Screenshot (P)"
+          onClick={() => {
+            playSound('tick')
+            void downloadScreenshot()
+          }}
+        >
+          📷
+        </button>
         <button className={s.pill} aria-label={muted ? 'Unmute' : 'Mute'} onClick={toggleMute}>
           {muted ? '🔇' : '🔊'}
         </button>
