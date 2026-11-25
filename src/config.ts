@@ -24,18 +24,30 @@ export const TERRAIN = {
 } as const
 
 export const CAMERA = {
-  fov: 45,
-  start: [0, 6, 14] as const,
-  minPolar: 0.35,
-  maxPolar: 1.35,
-  minDistance: 6,
-  maxDistance: 24,
-  idleSeconds: 5,
+  fov: 55,
+  /** fixed position: low, near the sand */
+  start: [0, 2.2, 13] as const,
+  /** home look-at point (~7° up toward the surface) */
+  target: [0, 3.8, 0] as const,
+  /** look range in degrees from straight ahead: ±45° left/right, 25° down to 15° up */
+  maxYaw: 45,
+  minPitch: -25,
+  maxPitch: 15,
+  /** dolly range as a multiple of the home distance to the board (0.5 = halfway in, 1.5 = 50% further out) */
+  zoomIn: 0.5,
+  zoomOut: 1.5,
 } as const
+
+/** Snell's window: the bright disc of sky seen from below the surface. */
+export const SURFACE = {
+  /** elevation (sin) where the window starts / is fully bright — widened for the low camera */
+  windowEdge: 0.3,
+  windowFull: 0.5,
+  height: 14,
+}
 
 export const WATER = {
   fogDensity: 0.045,
-  rays: 7,
 }
 
 export const CAUSTICS = { intensity: 0.35, scale: 0.16 }

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useReefStore } from '../store/useReefStore'
 import { playSound } from '../audio/audioEngine'
 import { downloadScreenshot } from '../scene/ScreenshotController'
+import { resetView } from '../scene/CameraRig'
 import s from './styles.module.css'
 
 export function TopBar() {
@@ -37,6 +38,16 @@ export function TopBar() {
             Clear reef
           </button>
         )}
+        <button
+          className={s.pill}
+          title="Reset view (H)"
+          onClick={() => {
+            playSound('tick')
+            resetView()
+          }}
+        >
+          Reset view
+        </button>
         <button
           className={s.pill}
           aria-label="Take screenshot"
